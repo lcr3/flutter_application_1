@@ -72,6 +72,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     // 画面の半分サイズ
     final double placeholderWidth = MediaQuery.of(context).size.width / 2;
+    final double temperatureBoxWidth = placeholderWidth;
 
     return Scaffold(
       appBar: AppBar(
@@ -88,25 +89,78 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             SizedBox(
-              width: placeholderWidth / 2,
-              height: placeholderWidth / 2,
+              width: placeholderWidth,
+              height: placeholderWidth,
               child: const Placeholder(),
             ),
-            const Text(
-              'You have pushed the button this many times:',
+            Container(
+              padding: const EdgeInsets.only(top: 16, bottom: 16),
+              width: temperatureBoxWidth,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      "** ℃",
+                      style: TextStyle(
+                          color: Colors.blue,
+                          fontWeight: Theme.of(context)
+                              .textTheme
+                              .labelLarge
+                              ?.fontWeight),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  Expanded(
+                      child: Text(
+                    "** ℃",
+                    style: TextStyle(
+                        color: Colors.red,
+                        fontWeight:
+                            Theme.of(context).textTheme.labelLarge?.fontWeight),
+                    textAlign: TextAlign.center,
+                  )),
+                ],
+              ),
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+            Container(
+              width: temperatureBoxWidth,
+              padding: const EdgeInsets.only(top: 80),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextButton(
+                      onPressed: () {},
+                      style: TextButton.styleFrom(
+                        foregroundColor: Colors.blue,
+                      ),
+                      child: const Text(
+                        'Close',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: TextButton(
+                      onPressed: () {},
+                      style: TextButton.styleFrom(
+                        foregroundColor: Colors.blue,
+                      ),
+                      child: const Text(
+                        'Reload',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
