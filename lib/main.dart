@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:yumemi_weather/yumemi_weather.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:vector_graphics/vector_graphics.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 // 天気の情報を受け渡しProvider
 final weatherProvider = StateProvider((ref) => '');
@@ -47,8 +47,7 @@ class MyHomePage extends ConsumerWidget {
 
     void fetchWeather() async {
       final yumemiWeather = YumemiWeather();
-      final weatherCondition = await yumemiWeather.fetchSimpleWeather();
-      print('Weather Condition: $weatherCondition');
+      final weatherCondition = yumemiWeather.fetchSimpleWeather();
 
       // 更新
       ref.read(weatherProvider.notifier).state = weatherCondition;
@@ -70,7 +69,11 @@ class MyHomePage extends ConsumerWidget {
             SizedBox(
               width: placeholderWidth,
               height: placeholderWidth,
-              child: const Placeholder(),
+              child: wether == ''
+                  ? const Placeholder()
+                  : SvgPicture.asset(
+                      'assets/$wether.svg',
+                    ),
             ),
             Container(
               padding: const EdgeInsets.only(top: 16, bottom: 16),
@@ -79,7 +82,7 @@ class MyHomePage extends ConsumerWidget {
                 children: [
                   Expanded(
                     child: Text(
-                      wether,
+                      "** ℃",
                       style: TextStyle(
                           color: Colors.blue,
                           fontWeight: Theme.of(context)
