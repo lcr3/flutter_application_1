@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/main.dart';
+import 'package:flutter_application_1/weather_page.dart';
 
 class StartPage extends StatefulWidget {
   const StartPage({super.key});
@@ -18,7 +18,7 @@ class StartPageState extends State<StartPage> {
       if (context.mounted) {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const MyHomePage()),
+          MaterialPageRoute(builder: (context) => const WeatherPage()),
         );
       }
     });
