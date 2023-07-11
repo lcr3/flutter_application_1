@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:yumemi_weather/yumemi_weather.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,15 +6,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 // 天気の情報を受け渡しProvider
 final weatherProvider = StateProvider((ref) => '');
 
-enum WeatherType {
-  sunny,
-  cloudy,
-  rainy,
-}
-
-void reload() {}
-
-
 class WeatherPage extends ConsumerWidget {
   const WeatherPage({super.key});
 
@@ -23,12 +13,30 @@ class WeatherPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final wether = ref.watch(weatherProvider);
 
+    void showErrorDialog() {
+      showDialog(
+          context: context,
+          builder: ((context) => AlertDialog(
+                title: const Text('Error'),
+                content: const Text('仮のテキスト'),
+                actions: <Widget>[
+                  TextButton(
+                    onPressed: () => Navigator.pop(context, 'OK'),
+                    child: const Text('OK'),
+                  ),
+                ],
+              )));
+    }
+
     void fetchWeather() async {
       final yumemiWeather = YumemiWeather();
-      final weatherCondition = yumemiWeather.fetchSimpleWeather();
-
-      // 更新
-      ref.read(weatherProvider.notifier).state = weatherCondition;
+      try {
+        final weatherCondition = yumemiWeather.fetchThrowsWeather('tokyo');
+        // 更新
+        ref.read(weatherProvider.notifier).state = weatherCondition;
+      } catch (e) {
+        showErrorDialog();
+      }
     }
 
     //   // 画面の半分サイズ
