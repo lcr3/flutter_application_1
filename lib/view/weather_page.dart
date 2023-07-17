@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/model/weather.dart';
-import 'package:flutter_application_1/repository/weater_repository_provider.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:flutter_application_1/uistate/ui_state.dart';
+import 'package:flutter_application_1/usecase/weather_usecase.dart';
 import 'package:yumemi_weather/yumemi_weather.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -10,26 +11,29 @@ class WeatherPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // weatherの内容に変化があるとウィジェットが更新される
-    Weather weather = ref.watch(weatherProvider);
+    final uiState = ref.watch(weatherPageUiStateProvider);
 
     void fetch() {
-      ref.read(weatherProvider.notifier).fetch();
+      ref.read(fetchWeatherUseCaseProvider).call();
     }
 
     void showErrorDialog() {
-      showDialog(
-          context: context,
-          builder: ((context) => AlertDialog(
-                title: const Text('Error'),
-                content: const Text('仮のテキスト'),
-                actions: <Widget>[
-                  TextButton(
-                    onPressed: () => Navigator.pop(context, 'OK'),
-                    child: const Text('OK'),
-                  ),
-                ],
-              )));
+      // TODO: もっといいソリューションがないか
+      // https://stackoverflow.com/questions/64636590/flutter-showdialog-setstate-or-markneedsbuild-called-during-build
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        showDialog(
+            context: context,
+            builder: ((context) => AlertDialog(
+                  title: const Text('Error'),
+                  content: const Text('仮のテキスト'),
+                  actions: <Widget>[
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, 'OK'),
+                      child: const Text('OK'),
+                    ),
+                  ],
+                )));
+      });
     }
 
     //   // 画面の半分サイズ
@@ -48,11 +52,16 @@ class WeatherPage extends ConsumerWidget {
             SizedBox(
               width: placeholderWidth,
               height: placeholderWidth,
-              child: weather.condition == ''
-                  ? const Placeholder()
-                  : SvgPicture.asset(
-                      'assets/${weather.condition}.svg',
-                    ),
+              child: uiState.when(
+                initial: () => const Placeholder(),
+                data: (weather) => SvgPicture.asset(
+                  'assets/${weather.condition}.svg',
+                ),
+                error: (message) {
+                  showErrorDialog();
+                  return const Placeholder();
+                },
+              ),
             ),
             Container(
               padding: const EdgeInsets.only(top: 16, bottom: 16),
@@ -60,30 +69,59 @@ class WeatherPage extends ConsumerWidget {
               child: Row(
                 children: [
                   Expanded(
-                    child: Text(
-                      weather.minTemperature == -99
-                          ? "** ℃"
-                          : weather.minTemperature.toString(),
-                      style: TextStyle(
-                          color: Colors.blue,
-                          fontWeight: Theme.of(context)
-                              .textTheme
-                              .labelLarge
-                              ?.fontWeight),
-                      textAlign: TextAlign.center,
+                    child: uiState.when(
+                      initial: () => Text(
+                        "** ℃",
+                        style: TextStyle(
+                            color: Colors.blue,
+                            fontWeight: Theme.of(context)
+                                .textTheme
+                                .labelLarge
+                                ?.fontWeight),
+                        textAlign: TextAlign.center,
+                      ),
+                      data: (weather) => Text(
+                        weather.minTemperature.toString(),
+                        style: TextStyle(
+                            color: Colors.blue,
+                            fontWeight: Theme.of(context)
+                                .textTheme
+                                .labelLarge
+                                ?.fontWeight),
+                        textAlign: TextAlign.center,
+                      ),
+                      error: (message) {
+                        return const Text('Error');
+                      },
                     ),
                   ),
                   Expanded(
-                      child: Text(
-                    weather.maxTemperature == -99
-                        ? "** ℃"
-                        : weather.maxTemperature.toString(),
-                    style: TextStyle(
-                        color: Colors.red,
-                        fontWeight:
-                            Theme.of(context).textTheme.labelLarge?.fontWeight),
-                    textAlign: TextAlign.center,
-                  )),
+                    child: uiState.when(
+                      initial: () => Text(
+                        "** ℃",
+                        style: TextStyle(
+                            color: Colors.blue,
+                            fontWeight: Theme.of(context)
+                                .textTheme
+                                .labelLarge
+                                ?.fontWeight),
+                        textAlign: TextAlign.center,
+                      ),
+                      data: (weather) => Text(
+                        weather.maxTemperature.toString(),
+                        style: TextStyle(
+                            color: Colors.blue,
+                            fontWeight: Theme.of(context)
+                                .textTheme
+                                .labelLarge
+                                ?.fontWeight),
+                        textAlign: TextAlign.center,
+                      ),
+                      error: (message) {
+                        return const Text('Error');
+                      },
+                    ),
+                  ),
                 ],
               ),
             ),
