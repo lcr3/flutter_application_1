@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/model/weather_model.dart';
+import 'package:flutter_application_1/repository/weater_repository_provider.dart';
 import 'package:yumemi_weather/yumemi_weather.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-// 天気の情報を受け渡しProvider
-final weatherProvider = StateProvider((ref) => '');
-
 class WeatherPage extends ConsumerWidget {
-  const WeatherPage({super.key});
+  const WeatherPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final wether = ref.watch(weatherProvider);
+    // weatherの内容に変化があるとウィジェットが更新される
+    WeatherModel weather = ref.watch(weatherProvider);
+
+    void fetch() {
+      ref.read(weatherProvider.notifier).fetch();
+    }
 
     void showErrorDialog() {
       showDialog(
@@ -26,17 +30,6 @@ class WeatherPage extends ConsumerWidget {
                   ),
                 ],
               )));
-    }
-
-    void fetchWeather() async {
-      final yumemiWeather = YumemiWeather();
-      try {
-        final weatherCondition = yumemiWeather.fetchThrowsWeather('tokyo');
-        // 更新
-        ref.read(weatherProvider.notifier).state = weatherCondition;
-      } catch (e) {
-        showErrorDialog();
-      }
     }
 
     //   // 画面の半分サイズ
@@ -55,10 +48,10 @@ class WeatherPage extends ConsumerWidget {
             SizedBox(
               width: placeholderWidth,
               height: placeholderWidth,
-              child: wether == ''
+              child: weather.condition == ''
                   ? const Placeholder()
                   : SvgPicture.asset(
-                      'assets/$wether.svg',
+                      'assets/${weather.condition}.svg',
                     ),
             ),
             Container(
@@ -68,7 +61,9 @@ class WeatherPage extends ConsumerWidget {
                 children: [
                   Expanded(
                     child: Text(
-                      "** ℃",
+                      weather.minTemperature == -99
+                          ? "** ℃"
+                          : weather.minTemperature.toString(),
                       style: TextStyle(
                           color: Colors.blue,
                           fontWeight: Theme.of(context)
@@ -80,7 +75,9 @@ class WeatherPage extends ConsumerWidget {
                   ),
                   Expanded(
                       child: Text(
-                    "** ℃",
+                    weather.maxTemperature == -99
+                        ? "** ℃"
+                        : weather.maxTemperature.toString(),
                     style: TextStyle(
                         color: Colors.red,
                         fontWeight:
@@ -111,7 +108,7 @@ class WeatherPage extends ConsumerWidget {
                   ),
                   Expanded(
                     child: TextButton(
-                      onPressed: fetchWeather,
+                      onPressed: fetch,
                       style: TextButton.styleFrom(
                         foregroundColor: Colors.blue,
                       ),
