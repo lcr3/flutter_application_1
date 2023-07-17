@@ -1,6 +1,6 @@
 
 import 'package:flutter/material.dart';
-import '../weather_page.dart';
+import '../view/weather_page.dart';
 
 mixin Transition {
   Future<void> delayTransition(BuildContext context) async {
