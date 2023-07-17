@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/model/weather_model.dart';
+import 'package:flutter_application_1/model/weather.dart';
 import 'package:flutter_application_1/repository/weater_repository_provider.dart';
 import 'package:yumemi_weather/yumemi_weather.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,7 +11,7 @@ class WeatherPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // weatherの内容に変化があるとウィジェットが更新される
-    WeatherModel weather = ref.watch(weatherProvider);
+    Weather weather = ref.watch(weatherProvider);
 
     void fetch() {
       ref.read(weatherProvider.notifier).fetch();
